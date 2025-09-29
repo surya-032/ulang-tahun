@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Selamat Ulang Tahun ke-21</title>
+<style>
+:root{
+  --bg:#0f1724;
+  --card:#0b1220;
+  --accent:#ff7aa2;
+  --muted:#9aa4b2;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,'Segoe UI',Roboto}
+body{
+  background:
+    radial-gradient(1200px 600px at 10% 10%, rgba(255,122,162,0.06), transparent),
+    radial-gradient(1000px 500px at 90% 90%, rgba(100,168,255,0.04), transparent),
+    var(--bg);
+  color:#e6eef6;
+  overflow-x:hidden;
+}
+.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{
+  width:100%;max-width:700px;
+  background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
+  border-radius:16px;padding:24px;
+  box-shadow:0 8px 30px rgba(2,6,23,0.6);position:relative
+}
+
+/* Overlay pembuka */
+.overlay{
+  position:fixed;inset:0;
+  background:linear-gradient(180deg,rgba(5,8,15,0.96),rgba(2,6,23,0.98));
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  z-index:60;padding:20px;text-align:center
+}
+.title{font-size:clamp(22px,5vw,44px);font-weight:700;margin:0}
+.subtitle{color:var(--muted);font-size:clamp(14px,2.2vw,18px);margin-top:10px}
+
+/* Lingkaran animasi */
+.circle {
+  width:120px;
+  height:120px;
+  margin:24px auto;
+  border-radius:50%;
+  background: radial-gradient(circle at 30% 30%, var(--accent), #ffd1ea);
+  box-shadow:0 0 20px rgba(255,122,162,0.4),
+             0 0 40px rgba(255,122,162,0.2) inset;
+  animation:glow 2s ease-in-out infinite;
+}
+@keyframes glow {
+  0% {transform:scale(1);box-shadow:0 0 20px rgba(255,122,162,0.4),0 0 40px rgba(255,122,162,0.2) inset;}
+  50%{transform:scale(1.08);box-shadow:0 0 35px rgba(255,122,162,0.6),0 0 50px rgba(255,122,162,0.3) inset;}
+  100%{transform:scale(1);box-shadow:0 0 20px rgba(255,122,162,0.4),0 0 40px rgba(255,122,162,0.2) inset;}
+}
+
+canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:70}
+
+/* Ucapan */
+.speech{
+  border:2px solid var(--accent);padding:18px;border-radius:12px;
+  text-align:justify;display:none;opacity:0;transition:opacity .5s ease
+}
+.speech.visible{display:block;opacity:1}
+.line{
+  font-size:clamp(18px,2.4vw,22px);margin:12px 0;
+  opacity:0;transform:translateY(8px);transition:all .6s ease
+}
+.line.visible{opacity:1;transform:none}
+
+/* Tombol */
+.btn{
+  display:inline-flex;gap:10px;align-items:center;
+  padding:12px 18px;border-radius:999px;
+  background:linear-gradient(90deg,var(--accent),#ffb3d1);color:#0b0b0b;font-weight:700;
+  border:none;cursor:pointer;box-shadow:0 10px 30px rgba(255,122,162,0.14);
+  transition:transform .14s ease
+}
+.btn:active{transform:translateY(2px)}
+</style>
+</head>
+<body>
+<audio id="bgMusic" src="./back.mp3" loop></audio>
+<canvas class="confetti" id="confettiCanvas"></canvas>
+
+<!-- Overlay pembuka -->
+<div class="overlay" id="overlay">
+  <div class="circle" aria-hidden="true"></div>
+  <h1 class="title">Selamat Ulang Tahun ke <span id="age">21</span>, Sayang!</h1>
+  <p class="subtitle">Semoga hari ini penuh kebahagiaan, kejutan manis, dan cinta.</p>
+  <button class="btn" id="startBtn">Buka Ucapan &#9658;</button>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <!-- Ucapan -->
+    <div class="speech" id="speechBox">
+      <p class="line">Selamat ulang tahun ke-21, sayangku ❤️</p>
+      <p class="line">Di setiap langkah yang kamu tempuh, aku selalu melihat sosok yang penuh semangat, ketulusan, dan keberanian. Aku bangga bisa berjalan di sampingmu, menyaksikan setiap mimpi yang kamu rajut perlahan menjadi nyata.</p>
+      <p class="line">Semoga hari ini menjadi awal yang indah dari perjalanan panjang menuju masa depan yang kamu cita-citakan. Semoga setiap doa, usaha, dan kebaikanmu dibalas dengan kebahagiaan tanpa batas.</p>
+      <p class="line">Tetaplah menjadi dirimu yang hangat, kuat, dan menginspirasi banyak orang. Aku berjanji akan selalu mendukung dan mencintaimu, apapun yang terjadi.</p>
+      <p class="line">Selamat ulang tahun, cintaku. Terima kasih sudah mewarnai hidupku dengan senyummu setiap hari ❤️</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const lines=[...document.querySelectorAll('.line')];
+const overlay=document.getElementById('overlay');
+const startBtn=document.getElementById('startBtn');
+const bgMusic=document.getElementById('bgMusic');
+const speechBox=document.getElementById('speechBox');
+
+startBtn.addEventListener('click',()=>{
+  bgMusic.play().catch(()=>{}); // mulai musik saat tombol ditekan
+  overlay.style.transition='opacity .5s ease';
+  overlay.style.opacity=0;
+  setTimeout(()=>overlay.style.display='none',500);
+  burstConfetti(150);
+  // tampilkan ucapan
+  setTimeout(()=>{
+    speechBox.classList.add('visible');
+    lines.forEach((el,idx)=>setTimeout(()=>el.classList.add('visible'),700+idx*700));
+  },700);
+});
+
+// confetti
+const canvas=document.getElementById('confettiCanvas');const ctx=canvas.getContext('2d');
+let W=canvas.width=innerWidth;let H=canvas.height=innerHeight;
+window.addEventListener('resize',()=>{W=canvas.width=innerWidth;H=canvas.height=innerHeight;});
+let confettiPieces=[];function random(min,max){return Math.random()*(max-min)+min}
+function addConfetti(n){
+  for(let i=0;i<n;i++){
+    confettiPieces.push({
+      x:random(0,W),y:random(-H,0),r:random(6,12),vx:random(-0.6,0.6),vy:random(1,3),
+      tilt:random(-10,10),tiltSpeed:random(0.02,0.12),
+      color:['#ff7aa2','#ffd1ea','#7fd3ff','#fff59a'][Math.floor(random(0,4))]
+    });
+  }
+}
+function burstConfetti(n){addConfetti(n);if(!animating){animating=true;render();}}
+let animating=false;
+function render(){
+  ctx.clearRect(0,0,W,H);
+  for(let i=0;i<confettiPieces.length;i++){
+    const p=confettiPieces[i];
+    p.tilt+=p.tiltSpeed;p.x+=p.vx;p.y+=p.vy+Math.sin(p.tilt)*0.5;
+    ctx.beginPath();
+    ctx.ellipse(p.x,p.y,p.r,p.r*0.6,p.tilt*0.1,0,Math.PI*2);
+    ctx.fillStyle=p.color;ctx.fill();
+    if(p.y>H+40){confettiPieces.splice(i,1);i--;}
+  }
+  if(confettiPieces.length>0)requestAnimationFrame(render);else animating=false;
+}
+</script>
+</body>
+</html>
